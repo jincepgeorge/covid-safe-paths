@@ -35,6 +35,7 @@ class NewsScreen extends Component {
       default_news: default_news,
       newsUrls: [],
       current_page: 0,
+      newsReadyForload: false  /*workaround for flcker in loading news in android */
     };
   }
 
@@ -52,7 +53,10 @@ class NewsScreen extends Component {
       visible: false,
     });
   }
-
+   /*workaround for flcker in loading news in android */
+  setNewsReadyForload() {
+    this.setState({newsReadyForload: true});
+ }
   renderItem = item => {
     return (
       <View style={styles.singleNews}>
@@ -79,8 +83,13 @@ class NewsScreen extends Component {
       </View>
     );
   };
-
   componentDidMount() {
+    /*workaround for flcker issue in loading news in android
+    setting a small amount of delay in loading the news contents */
+    setTimeout( () => {
+      this.setNewsReadyForload();
+   },300);
+
     BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
 
     GetStoreData(AUTHORITY_NEWS)
@@ -108,6 +117,7 @@ class NewsScreen extends Component {
   }
 
   render() {
+   
     // console.log('News URL -', this.state.newsUrls);
     return (
       <LinearGradient
@@ -129,6 +139,7 @@ class NewsScreen extends Component {
                 flex: 1,
                 paddingVertical: 16,
               }}>
+                {this.state.newsReadyForload &&
               <Carousel
                 data={this.state.newsUrls}
                 renderItem={this.renderItem}
@@ -136,7 +147,7 @@ class NewsScreen extends Component {
                 itemWidth={width * 0.85}
                 layout={'default'}
                 scrollEnabled
-              />
+              />} 
 
               {this.state.visible && (
                 <ActivityIndicator
@@ -154,7 +165,7 @@ class NewsScreen extends Component {
         </NavigationBarWrapper>
       </LinearGradient>
     );
-  }
+}
 }
 
 const styles = StyleSheet.create({
